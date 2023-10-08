@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MorizeApp</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'menuDiretor.html' %}
+    <div class="container mt-5">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">Proporções Administrativas</div>
+              <div class="card-body">
+                <canvas id="chart1"></canvas>
+              </div>
+            </div>
+          </div>
+          <!-- Repita este bloco para os outros gráficos -->
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">Quantidade de Alunos por Turma</div>
+              <div class="card-body">
+                <canvas id="chart2"></canvas>
+              </div>
+            </div>
+          </div>
+          <!-- Fim do bloco de repetição -->
+        </div>
+      </div>
+
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
+      <script>
+        $(document).ready(function () {
+          const listaTurmas = [];
+          const listaQuantidadeAlunosTurma = [];
+          {% for relacao in relacaoTurmaAlunos %}
+            listaTurmas.push( '{{ relacao.nome }} ')
+            listaQuantidadeAlunosTurma.push( '{{ relacao.quantidade }} ')
+          {% endfor %}
+
+          const listaEntidades = [];
+          const listaQuantidadeEntidades = [];
+          {% for relacao in relacaoEntidades %}
+            listaEntidades.push( '{{ relacao.entidade }} ')
+            listaQuantidadeEntidades.push( '{{ relacao.quantidade }} ')
+          {% endfor %}
+
+            const data1 = {
+            labels: listaEntidades,
+            datasets: [{
+                label: 'Quantdade:',
+                data: listaQuantidadeEntidades,
+                backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+            };
+        
+            const data2 = {
+            labels: listaTurmas,
+            datasets: [{
+                label: 'Quantidade de Alunos por Turma',
+                data: listaQuantidadeAlunosTurma,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+            };
+        
+            const config1 = {
+            type: 'bar',
+            data: data1,
+            options: {
+                scales: {
+                y: {
+                    beginAtZero: true
+                }
+                }
+            }
+            };
+        
+            const config2 = {
+            type: 'doughnut',
+            data: data2,
+            options: {
+                plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+                }
+            }
+            };
+        
+            var ctx1 = $('#chart1')[0].getContext('2d');
+            new Chart(ctx1, config1);
+        
+            var ctx2 = $('#chart2')[0].getContext('2d');
+            new Chart(ctx2, config2);
+        });  
+      </script>
+</body>

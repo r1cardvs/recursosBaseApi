@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MorizeApp</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-..." crossorigin="anonymous">
+</head>
+<body>
+    <style>
+        .nomeAluno {
+            cursor: pointer;
+        }
+    </style>
+    {% include 'menuDiretor.html' %}
+    <br>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-10"><h3><i class="fa-solid fa-graduation-cap"></i> Gerenciamento de Alunos</h3></div>
+        </div>
+        <div class="row">
+            <div class="col-10">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" onclick="novoAluno()" class="btn btn-secondary"><i class="fa-solid fa-plus"></i> Novo Aluno</button>
+                    <button type="button" onclick="exportarDados()" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i> Exportar Dados</button>
+                    <button type="button" onclick="exportarDados()" class="btn btn-secondary"><i class="fa-solid fa-file-pdf"></i> Gerar Relatório</button>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="form-group">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <select class="custom-select" id="campoPesquisa">
+                    <option value="nome" selected>Nome</option>
+                    <option value="ra">RA</option>
+                    <option value="email">E-mail</option>
+                  </select>
+                </div>
+                <input type="text" class="form-control" id="search" placeholder="Digite para pesquisar">
+              </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>RA</th>
+                    <th>Grupos</th>
+                    <th>Turmas</th>
+                    <th>Documentos</th>
+                    <th>Autenticação</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbodyAlunos">
+                {% for item in alunos %}
+                    <tr class="trAluno" email="{{ item.email }}" nome="{{ item.nome }}" ra="{{ item.RA }}">
+                        <td><label class="nomeAluno" ra="{{ item.RA }}" onclick="exibirDadosAluno('{{ item.RA }}')">{{ item.nome }}</label></td>
+                        <td>{{ item.RA }}</td>
+                        <td>
+                            <button type="button" class="btn btn-info" onclick="buscaListaTurmas('{{ item.RA }}')">
+                                Grupos
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-info" onclick="buscaListaTurmas('{{ item.RA }}')">
+                                Turmas
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="buscarDocumentos('{{ item.RA }}', '{{ item.nome }}')">
+                               Documentos
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-success" onclick="definirNovaSenha('{{ item.RA }}')">
+                                Redefinir Senha
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="editarAluno('{{ item.RA }}', '{{ item.nome }}', '{{ item.email }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="iniciaExcluirAluno('{{ item.RA }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalAlunos">Editar Dados</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="erroAlunos" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Preencha todos os campos
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <label id="ra_edit">RA:</label>
+                    <div class="form-group">
+                        <label for="nome_aluno">Nome:</label>
+                        <input type="text" class="form-control" id="nome_aluno">
+                    </div>
+                    <div class="form-group">
+                        <label for="email_aluno">Email:</label>
+                        <input type="text" class="form-control" id="email_aluno">
+                    </div>
+                    <div class="form-group">
+                        <label for="grupo_edit">Grupo de Alunos:</label>
+                        <select class="form-control" id="grupo_edit">
+                            <option value="1">Grupo 1</option>
+                            <option value="2">Grupo 2</option>
+                            <option value="3">Grupo 3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button id="botaoSalvar" type="button" acao="editar" class="btn btn-primary" onclick="salvarAluno()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+      <!-- Modal -->
+    <div class="modal fade" id="confirmaExcluirAluno" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="confirmModalLabel">Tem certeza que deseja excluir esse aluno?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button id="botaoExcluir" ra="" type="button" class="btn btn-danger" onclick="confirmarExclusao()">Excluir</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+
+    {% include 'alunos/exibirNovaSenha.html' %}
+    {% include 'alunos/alunosModalTurmas.html' %}
+    {% include 'alunos/alunosDocumentos.html' %}
+    {% include 'alunos/alunosExportarDados.html' %}
+    {% include 'alunos/alunosModalDados.html' %}
+    {% include 'alunos/alunosModalRedefinirSenha.html' %}
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script>
+        function editarAluno(RA, nome, email)
+        {
+            $('#erroAlunos').hide();
+            $('#tituloModalAlunos').html('Editar Aluno');
+            $('#ra_edit').html("RA: " + RA);
+            $('#nome_aluno').val(nome);
+            $('#email_aluno').val(email);
+            $('#botaoSalvar').attr('acao','atualizar');
+            $('#editarModal').modal('show');
+        }
+
+        function novoAluno()
+        {
+            $('#ra_edit').hide();
+            $('#erroAlunos').hide();
+            $('#tituloModalAlunos').html('Cadastrar Aluno');
+            $('#ra_edit').val('');
+            $('#nome_aluno').val('');
+            $('#email_aluno').val('');
+            $('#turma_aluno').val('');
+            $('#botaoSalvar').attr('acao','cadastrar');
+            $('#editarModal').modal('show');
+        }
+
+        function excluirAluno(RA)
+        {
+            $.ajax({
+                url: '/excluirAluno/' + RA,
+                type: 'DELETE',
+                success: function(response)
+                {
+                    $('#' + RA).remove();
+                    $('#confirmaExcluirAluno').modal('hide');
+                },
+                error: function(error)
+                {
+                    console.error('Erro ao excluir elemento:', error);
+                }
+            });
+        }
+
+        function iniciaExcluirAluno(RA)
+        {
+            $('#confirmaExcluirAluno').modal('show');
+            $('#botaoExcluir').attr('ra',RA);
+        }
+
+        function confirmarExclusao()
+        {
+            const RA = $('#botaoExcluir').attr('ra');
+            excluirAluno(RA)
+        }
+
+        function salvarAluno(RA)
+        {
+            const nome = $('#nome_aluno').val();
+            const email = $('#email_aluno').val();
+            const turma = $('#turma_aluno').val();
+
+            $.ajax({
+            url: '/cadastrarAluno',
+            type: 'POST',
+            data:
+            {
+                nome: nome,
+                email: email,
+                turma: turma
+            },
+            success: function(response)
+            {
+                let htmlTr = "";
+                htmlTr += '<tr class="trAluno" nome="' + nome + '" id="' + response.raAlunos +'">';
+                htmlTr += '    <td>' + nome + '</td>';
+                htmlTr += '    <td>' + email + '</td>';
+                htmlTr += '    <td>' + response.raAlunos + '</td>';
+                htmlTr += '    <td>';
+                htmlTr += '        <button type="button" class="btn btn-success" onclick="definirNovaSenha("' + response.raAlunos + '")">';
+                htmlTr += '            Redefinir Senha';
+                htmlTr += '        </button>';
+                htmlTr += '        <button type="button" class="btn btn-primary" onclick="editarAluno(TES, ' + nome + ', ' + email + ')">';
+                htmlTr += '            Editar';
+                htmlTr += '        </button>';
+                htmlTr += '        <button type="button" class="btn btn-danger" onclick="iniciaExcluirAluno("' + response.raAlunos + '")">';
+                htmlTr += '            Excluir';
+                htmlTr += '        </button>';
+                htmlTr += '    </td>';
+                htmlTr += '</tr>';
+
+                $('#tbodyAlunos').append(htmlTr);
+                $('#editarModal').modal('hide');
+                $('#modlExibirNovaSenha').modal('show');
+                $('#novoRa').val( response.raAlunos );
+                $('#novaSenha').val( response.senhaAluno );
+
+            },
+            error: function(error)
+            {
+                console.log('Erro ao editar o aluno.');
+            }
+            });
+        }
+    
+        function togglePassword(inputId)
+        {
+            const input = $('#' + inputId);
+            if (input.attr('type') === 'password') {
+                input.attr('type', 'text');
+            } else {
+                input.attr('type', 'password');
+            }
+        }
+  
+        function resetPassword()
+        {
+            const novaSenha = $('#password').val();
+            const confirmPassword = $('#confirmPassword').val();
+            const identificador = $('#botaoRedefinirSenha').attr('identificador');
+
+            const errorDiv = $('#errorDiv');
+            if (novaSenha !== confirmPassword)
+            {
+                errorDiv.text('As senhas não coincidem. Por favor, tente novamente.');
+                errorDiv.show();
+                return;
+            }
+
+            $.ajax({
+                url: '/limparSenha/' + identificador,
+                type: 'POST',
+                data:
+                {
+                    senha: novaSenha
+                },
+                success: function(response)
+                {
+                    $('#resetPasswordModal').modal('hide');
+                },
+                error: function(error)
+                {
+                    console.error('Erro ao excluir elemento:', error);
+                }
+            });
+
+          errorDiv.hide();
+    }
+        
+        function definirNovaSenha(identificador)
+        {
+            $('#resetPasswordModal').modal('show');
+            $('#botaoRedefinirSenha').attr('identificador',identificador);
+        }
+       
+        $('#search').on('input', function() {
+            const valorPesquisa = $(this).val().toUpperCase();
+            const campoPesquisa = $( '#campoPesquisa' ).val();
+
+            console.log(campoPesquisa);
+            $(".trAluno").each( function(chave,tarefa)
+            {
+                let pesquisa = $(this).attr( campoPesquisa ).toUpperCase();
+                if( !pesquisa.includes(valorPesquisa ) && valorPesquisa != "" )
+                {
+                    $( this ).hide();
+                }
+                else
+                {
+                    $( this ).show();   
+                }
+            });
+        } );
+    
+        function buscaListaTurmas(RA)
+        {
+            $.ajax({
+                url: '/buscaTurmasAluno/' + RA,
+                type: 'GET',
+                success: function(response)
+                {
+                    $('#modalTurmas').modal('show');
+                    $('#modalTurmasBotaoSalvar').attr('ra',RA);
+
+                    const listTurmasMatriculadas = $("#listaTurmasMatriculadas");
+                    listTurmasMatriculadas.html('');
+                    response.turmasMatriculadas.forEach( turma =>{
+                        turmasMatriculadas.push( turma.identificador );
+                        listTurmasMatriculadas.append( '<option value=' + turma.identificador +'>' + turma.nome + '</option>' );
+                    } );
+
+                    const listTurmasNaoMatriculadas = $("#listaTurmasNaoMatriculadas");
+                    listTurmasNaoMatriculadas.html('');
+                    response.turmasNaoMatriculadas.forEach( turma =>{
+                        listTurmasNaoMatriculadas.append( '<option value=' + turma.identificador +'>' + turma.nome + '</option>' );
+                    } );
+
+                    validaBotoesGerenciarTurma();
+                },
+                error: function(error)
+                {
+                    console.error('Erro ao excluir elemento:', error);
+                }
+            });
+        }
+   
+        function buscarDocumentos( RA, nomeAluno )
+        {
+            $('#modalDocumentos').modal('show');
+            $('#modalDocumentos').attr('ra',RA);
+            $('#modalDocumentos').attr('nomeAluno',nomeAluno);
+        }
+
+        function exportarDados()
+        {
+            $('#modalExportarDados').modal('show');
+        }
+
+        function exibirDadosAluno( RA )
+        {
+            $.ajax({
+                url: '/buscaDadosAluno/' + RA,
+                type: 'GET',
+                success: function(response)
+                {
+                    $('#modalDadosAluno').modal('show');
+                    $('#modalDadosAlunoInicio').html( "Dados do aluno: " + response.dadosAluno.nome);
+                    $('#modalDadosAlunoNome').html( response.dadosAluno.nome);
+                    $('#modalDadosAlunoRA').html( response.dadosAluno.RA);
+                    $('#modalDadosAlunoEmail').html( response.dadosAluno.email);
+                }
+            });
+        }
+   </script>
+</body>
+</html>

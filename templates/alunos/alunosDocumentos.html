@@ -1,0 +1,67 @@
+<div class="modal fade" nomeAluno="" ra="" id="modalDocumentos">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title"><i class="fa-solid fa-file-pdf"></i> Documentos</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-12">
+                <label for="exampleFormControlSelect1">Documentos Disponíveis</label>
+                <select class="form-control" id="exampleFormControlSelect1">
+                  <option value="comprovanteMatricula">Comprovante de Matricula</option>
+                  <option value="comprovanteMatricula">Histórico Escolar Parcial</option>
+                  <option value="comprovanteMatricula">Ficha Cadastral</option>
+                  <option value="comprovanteMatricula">Carteirinha Estudante</option>
+                </select>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+            <button id="modalTurmasBotaoSalvar" type="button" class="btn btn-success" ra="" onclick="gerarDocumento()"><i class="fa-solid fa-download"></i> Baixar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js" integrity="sha384-NaWTHo/8YCBYJ59830LTz/P4aQZK1sS0SneOgAvhsIl3zBu8r9RevNg5lHCHAuQ/" crossorigin="anonymous"></script>
+
+ <script>
+   function gerarDocumento()
+    {
+        const nomeAluno = $('#modalDocumentos').attr('nomeAluno');
+        const RA = $('#modalDocumentos').attr('ra');
+        linhaPDF = 10;
+
+        $.ajax({
+                url: '/buscaTurmasAluno/' + RA,
+                type: 'GET',
+                success: function(response)
+                {
+                    const doc = new jsPDF();
+                    doc.text(10, 30, 'Atesto que o alunos ou aluna: '+ nomeAluno + ' portador do RA: ' + RA);
+                    doc.text(10, 40, 'está regularmente matriculado nas seguintes turmas:');
+                   
+                    y = 50;
+
+                    response.turmasMatriculadas.forEach( turma =>{
+                        doc.text(`ID: ${turma.identificador}`, 10, y);
+                        doc.text(`Turma: ${turma.nome}`, 80, y);
+                        y += 10;
+                    } );
+
+                    
+                    nomeAlunoArquivo = nomeAluno.toLowerCase().replace(/\s+/g, '-');
+                    doc.save(nomeAlunoArquivo + '-comprovante-matricula.pdf');
+
+                }
+            } );
+    }
+    </script>
+</script>

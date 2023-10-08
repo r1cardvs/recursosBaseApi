@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MorizeApp</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>  
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'menuDiretor.html' %}
+    <br>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-10"><h3>Gerenciamento de Turmas</h3></div>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="search" placeholder="Digite para pesquisar">
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Turma</th>
+                    <th>Professor:</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbodyAlunos">
+                {% for turma in turmas %}
+                    <tr class="trTurma" name="{{ turma.nome }}" id="{{ turma.identificador }}">
+                        <td>{{ turma.identificador }}</td>
+                        <td>{{ turma.nome }}</td>
+                        <td>
+                            <select class="form-control" id="turma_aluno">
+                                {% for professor in professores %}
+                                    <option
+                                        value="{{ professor.identificador }}"
+                                        {% if professor.identificador %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                    {{ professor.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-success" onclick="gerirAlunos('{{ turma.identificador }}')">
+                                Gerir Alunos
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger" onclick="excluirTurma('{{ turma.identificador }}')">
+                                Excluir
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include 'turmas/turmasModalAlunos.html' %}
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
+<script>
+    function _gerirAlunos(identificador)
+    {
+        $.ajax({
+            url: '/buscaAlunosTurma/' + identificador,
+            type: 'GET',
+            success: function(response)
+            {
+                console.log(response)
+                $('#modalAlunos').modal('show');
+                $('#modalTurmasBotaoSalvar').attr('identificador',identificador);
+
+                const listaAlunosMatriculados = $("#listaAlunosMatriculados");
+                listaAlunosMatriculados.html('');
+                response.alunosMatriculadas.forEach( aluno =>{
+                    console.log(aluno)
+                    turmasMatriculadas.push( aluno.identificador );
+                    listaAlunosMatriculados.append( '<option value=' + aluno.RA +'>' + aluno.nome + '</option>' );
+                } );
+
+                const listaAlunosNaoMAtriculados = $("#listaAlunosNaoMatriculados");
+                listaAlunosNaoMAtriculados.html('');
+                response.alunosNaoMatriculadas.forEach( aluno =>{
+                    listaAlunosNaoMAtriculados.append( '<option value=' + aluno.RA +'>' + aluno.nome + '</option>' );
+                } );
+
+                validaBotoesGerenciarTurma();
+            },
+            error: function(error)
+            {
+                console.error('Erro ao excluir elemento:', error);
+            }
+        });
+    }
+
+
+    function gerirAlunos(identificador)
+    {
+        axios.get('/buscaAlunosTurma/' + identificador).then(function (response) {
+
+        $('#modalAlunos').modal('show');
+        $('#modalTurmasBotaoSalvar').attr('identificador', identificador);
+
+        const listaAlunosMatriculados = $("#listaAlunosMatriculados");
+        listaAlunosMatriculados.html('');
+        response.data.alunosMatriculadas.forEach(aluno => {
+            turmasMatriculadas.push(aluno.identificador);
+            listaAlunosMatriculados.append('<option value=' + aluno.RA + '>' + aluno.nome + '</option>');
+        });
+
+        const listaAlunosNaoMatriculados = $("#listaAlunosNaoMatriculados");
+        listaAlunosNaoMatriculados.html('');
+        response.data.alunosNaoMatriculadas.forEach(aluno => {
+            listaAlunosNaoMatriculados.append('<option value=' + aluno.RA + '>' + aluno.nome + '</option>');
+        });
+
+        validaBotoesGerenciarTurma();
+    })
+    .catch(function (error) {
+        console.error('Erro ao excluir elemento:', error);
+    });
+
+    }
+</script>
+</script>

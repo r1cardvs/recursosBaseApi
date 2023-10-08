@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redefinir Senha</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    .centered-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mt-4"><i class="fa-solid fa-key"></i> Redefinir Senha</h1>
+    <div class="centered-card">
+      <div class="card" style="width: 300px;">
+        <div class="card-body">
+          <h5 class="card-title">Selecione uma nova senha</h5>
+          <form id="resetPasswordForm">
+            <div class="form-group">
+              <label for="password">Nova Senha</label>
+              <input type="password" class="form-control" id="password" placeholder="Nova Senha">
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirmar Senha</label>
+              <input type="password" class="form-control" id="confirmPassword" placeholder="Confirmar Senha">
+            </div>
+            <div id="errorDiv" class="alert alert-danger" role="alert" style="display: none;"></div>
+            <button type="button" class="btn btn-primary" onclick="resetPassword()">Redefinir Senha</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script>
+    function resetPassword() {
+      var newPassword = $('#password').val();
+      var confirmPassword = $('#confirmPassword').val();
+
+      var errorDiv = $('#errorDiv');
+      if (newPassword !== confirmPassword) {
+        errorDiv.text('As senhas não coincidem. Por favor, tente novamente.');
+        errorDiv.show();
+        return;
+      }
+
+      // Limpar mensagens de erro
+      errorDiv.hide();
+
+      // Simulando a redefinição de senha
+      alert('Senha redefinida com sucesso!');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>MorizeApp</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'menuProfessor.html' %}
+    <br>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-10"><h3>Gerenciamento de Turmas</h3></div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="search" placeholder="Digite para pesquisar">
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID:</th>
+                    <th>Nome</th>
+                    <th>Ciclo de Entrega</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbodyTurmas">
+                {% for turma in turmas %}
+                    <tr class="trAluno" name="{{ turma.nome }}" id="{{ turma.identificador }}">
+                        <td>{{ turma.identificador }}</td>
+                        <td>{{ turma.nome }}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="gerenciarCicloEntregas('{{ turma.identificador }}','{{ turma.nome }}')">
+                                Ciclo de Entrega
+                            </button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="buscarDocumentos('{{ turma.identificador }}', '{{ turmas.nome }}')">
+                                Documentos
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModalAlunos">Editar Dados</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="erroAlunos" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Preencha todos os campos
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <label id="ra_edit">identificador:</label>
+                    <div class="form-group">
+                        <label for="nome_aluno">Nome:</label>
+                        <input type="text" class="form-control" id="nome_aluno">
+                    </div>
+                    <div class="form-group">
+                        <label for="email_aluno">Email:</label>
+                        <input type="text" class="form-control" id="email_aluno">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grupo_edit">Grupo de Alunos:</label>
+                        <select class="form-control" id="grupo_edit">
+                            <option value="1">Grupo 1</option>
+                            <option value="2">Grupo 2</option>
+                            <option value="3">Grupo 3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button id="botaoSalvar" type="button" acao="editar" class="btn btn-primary" onclick="salvarAluno()"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'acessoProfessor/modalCicloEntrega.html' %}
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script>
+    function gerenciarCicloEntregas(identificadorTurma,nomeTurma)
+    {
+        $('#modalCicloEntregas').modal('show');
+        $('#tituloCicloEntregas').html('Ciclo de Entregas da turma: ' + nomeTurma);
+        $('#modalCicloEntregas').attr('idTurma',identificadorTurma);
+    }
+</script>
+</body>
+</html>

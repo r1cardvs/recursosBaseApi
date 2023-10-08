@@ -1,0 +1,58 @@
+<div class="modal fade" nomeAluno="" ra="ALUNO03" id="modalExportarDados">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Exportar dados</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-12">
+                <label for="exampleFormControlSelect1">Selecione a base que deseja exportar</label>
+                <select class="form-control" id="exampleFormControlSelect1">
+                  <option value="turmasAlunos">Turmas dos Alunos</option>
+                  <option value="comprovanteMatricula">Histórico Escolar Parcial</option>
+                  <option value="comprovanteMatricula">Ficha Cadastral</option>
+                  <option value="comprovanteMatricula">Carteirinha Estudante</option>
+                </select>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Voltar</button>
+            <button id="modalTurmasBotaoSalvar" type="button" class="btn btn-primary" ra="" onclick="exportarDados()">Baixar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+ <script>
+    function exportarDados()
+    {
+        console.log('tes')
+        const RA = $('#modalExportarDados').attr('ra');
+
+        $.ajax({
+                url: '/buscaTurmasAluno/' + RA,
+                type: 'GET',
+                success: function(response)
+                {
+                    data = response.turmasMatriculadas;
+                    const csvContent = "data:text/csv;charset=utf-8," + data.map(row => row.join(',')).join('\n');
+
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "dados.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link); // Limpa o link após o download
+                }
+            } );
+    }
+    </script>
+</script>
